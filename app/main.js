@@ -3,7 +3,11 @@ const path = require('path')
 const fs = require('fs')
 
 let mainWindow = null;
-const getFileFromUser = () => {
+const openFile = (filename) => {
+    const content = fs.readFileSync(filename).toString()
+    mainWindow.webContents.send('open-file', filename, content)
+}
+exports.getFileFromUser = () => {
     const filenames = dialog.showOpenDialog({
         properties: ['openFile'],
         filters: [
@@ -13,14 +17,15 @@ const getFileFromUser = () => {
     })
     if(!filenames) return;
     const filename = filenames[0]
-    const content = fs.readFileSync(filename).toString()
-    console.log(content);
+    // const content = fs.readFileSync(filename).toString()
+    // return content
+    openFile(filename)
 }
 app.on('ready', () => {
     /** show window once after html is loaded, in case a blink of blank at startup **/
     mainWindow = new BrowserWindow({ show: false })
     mainWindow.loadFile(path.join(__dirname, 'index.html'))
-    getFileFromUser();
+    // getFileFromUser();
     mainWindow.once('ready-to-show', () => {
         mainWindow.show()
     })
